@@ -11,13 +11,13 @@
     PTramsform when not using Dataflow runner.
 *   Added the experimental function "create_container_component" that
     simplifies creating container-based components.
-*   Removed the incomplete cifar10 example.
 
 ## Bug fixes and other changes
 
 *   Depends on `apache-beam[gcp]>=2.20,<3`.
 *   Depends on `grpcio>=2.18.1,<3`.
 *   Depends on `kubernetes>=10.0.1,<12`.
+*   Depends on `pyarrow>=0.16,<0.17`.
 *   Removed `python-snappy` from `[all]` extra dependency list.
 *   Tests depends on `apache-airflow>=1.10.10,<2`;
 *   Removed test dependency to tzlocal.
