@@ -53,6 +53,7 @@ class ExampleAnomalies(Artifact):
   TYPE_NAME = 'ExampleAnomalies'
   PROPERTIES = {
       'span': SPAN_PROPERTY,
+      'split_names': SPLIT_NAMES_PROPERTY,
   }
 
 
@@ -64,6 +65,7 @@ class ExampleStatistics(Artifact):
   }
 
 
+# TODO(b/158334890): deprecate ExternalArtifact.
 class ExternalArtifact(Artifact):
   TYPE_NAME = 'ExternalArtifact'
 
@@ -78,6 +80,10 @@ class InfraBlessing(Artifact):
 
 class Model(Artifact):
   TYPE_NAME = 'Model'
+
+
+class ModelRun(Artifact):
+  TYPE_NAME = 'ModelRun'
 
 
 class ModelBlessing(Artifact):
@@ -193,6 +199,10 @@ class TransformGraph(Artifact):
   TYPE_NAME = 'TransformGraph'
 
 
-# Still WIP and subject to change.
 class HyperParameters(Artifact):
   TYPE_NAME = 'HyperParameters'
+
+
+# WIP and subject to change.
+class DataView(Artifact):
+  TYPE_NAME = 'DataView'

@@ -1,14 +1,110 @@
 # Current Version(Still in Development)
 
 ## Major Features and Improvements
+*   Added TFX DSL IR compiler that encodes a TFX pipeline into a DSL proto.
+*   Supported feature based split partition in ExampleGen.
+*   Added the ConcatPlaceholder to tfx.dsl.component.experimental.placeholders.
+*   Changed Span information as a property of ExampleGen's output artifact.
+    Deprecated ExampleGen input (external) artifact.
+*   Added ModelRun artifact for Trainer for storing training related files,
+    e.g., Tensorboard logs. Trainer's Model artifact now only contain pure
+    models (check utils/path_utils.py for details).
+*   Added support for `tf.train.SequenceExample` in ExampleGen:
+    *   ImportExampleGen now supports `tf.train.SequenceExample` importing.
+    *   base_example_gen_executor now supports `tf.train.SequenceExample` as
+        output payload format, which can be utilized by custom ExampleGen.
+*   Added Tuner component and its integration with Google Cloud Platform as
+    the execution and hyperparemeter optimization backend.
+*   Switched Transform component to use the new TFXIO code path. Users may
+    potentially notice large performance improvement.
+*   Added support for primitive artifacts to InputValuePlaceholder.
+*   Supported multiple artifacts for Trainer and Tuner's input example Channel.
+*   Supported split configuration for Trainer and Tuner.
+*   Supported split configuration for Evaluator.
+*   Supported split configuration for StatisticsGen, SchemaGen and
+    ExampleValidator. SchemaGen will now use all splits to generate schema
+    instead of just using `train` split. ExampleValidator will now validate all
+    splits against given schema instead of just validating `eval` split.
+*   Component authors now can create a TFXIO instance to get access to the
+    data through `tfx.components.util.tfxio_utils`. As TFX is going to
+    support more data payload formats and data container formats, using
+    `tfxio_utils` is encouraged to avoid dealing directly with each combination.
+    TFXIO is the interface of [Standardized TFX Inputs](https://github.com/tensorflow/community/blob/master/rfcs/20191017-tfx-standardized-inputs.md).
+*   Added experimental BaseStubExecutor and StubComponentLauncher to test TFX
+    pipelines.
+*   Added experimental TFX Pipeline Recorder to record output artifacts of the
+    pipeline.
+*   Supported multiple artifacts in an output Channel to match a certain input
+    Channel's artifact count. This enables Transform component to process
+    multiple artifacts.
+*   Transform component's transformed examples output is now optional (enabled
+    by default) -- specify parameter `materialize=False` when constructing
+    the component to disable.
 
 ## Bug fixes and other changes
-*   Added Tuner component, which is still work in progress.
 *   Added Tuner component to Iris e2e example.
 *   Relaxed the rule that output artifact uris must be newly created. This is a
     temporary workaround to make retry work. We will introduce a more
     comprehensive solution for idempotent execution.
 *   Made evaluator output optional (while still recommended) for pusher.
+*   Moved BigQueryExampleGen to `tfx.extensions.google_cloud_big_query`.
+*   Removed Tuner from custom_components/ as it's supported under components/
+    now.
+*   Added support of non tf.train.Example protos as internal data payload
+    format by ImportExampleGen.
+*   Used thread local storage for `label_utils.scoped_labels()` to make it
+    thread safe.
+*   Stopped requiring `avro-python3`.
+*   Requires [Bazel](https://bazel.build/) to build TFX source code.
+*   Upgraded python version in TFX docker images to 3.7. Older version of
+    python (2.7/3.5/3.6) is not available anymore in `tensorflow/tfx` images
+    on docker hub. Virtualenv is not used anymore.
+
+## Breaking changes
+
+### For pipeline authors
+*   Moved BigQueryExampleGen to `tfx.extensions.google_cloud_big_query`. The
+    previous module path from `tfx.components` is not available anymore.
+*   Moved BigQuery ML Pusher to `tfx.extensions.google_cloud_big_query.pusher`.
+    The previous module path from `tfx.extensions.google_cloud_big_query_ml`
+    is not available anymore.
+*   Updated beam pipeline args, users now need to set both `direct_running_mode`
+    and `direct_num_workers` explicitly for multi-processing.
+*   Added required 'output_data_format' execution property to
+    FileBaseExampleGen.
+*   Changed ExampleGen to take a string as input source directly instead of a
+    Channel of external artifact:
+    *   `input` Channel is deprecated. The use of `input` is valid but
+        should change to string type `input_base` ASAP.
+    *   Previously deprecated `input_base` Channel is changed to string type
+        instead of Channel. This is a breaking change, users should pass string
+        directly to `input_base`.
+*   ExternalArtifact and `external_input` function are deprecated. The use
+    of `external_input` with ExampleGen `input` is still valid but should change
+    to use `input_base` ASAP.
+*   Fully removed csv_input and tfrecord_input in dsl_utils. This is a breaking
+    change, users should pass string directly to `input_base`.
+*   Changed GetInputSourceToExamplePTransform interface by removing input_dict.
+    This is a breaking change, custom ExampleGens need to follow the interface
+    change.
+
+### For component authors
+
+## Documentation updates
+
+## Deprecations
+
+# Version 0.22.1
+
+## Major Features and Improvements
+
+## Bug fixes and other changes
+*   Depends on 'tensorflowjs>=2.0.1.post1,<3' for `[all]` dependency.
+*   Fixed the name of the usage telemetry when tfx templates are used.
+*   Depends on `tensorflow-data-validation>=0.22.2,<0.23.0`.
+*   Depends on `tensorflow-model-analysis>=0.22.2,<0.23.0`.
+*   Depends on `tfx-bsl>=0.22.1,<0.23.0`.
+*   Depends on `ml-metadata>=0.22.1,<0.23.0`.
 
 ## Breaking changes
 
@@ -65,6 +161,7 @@
 *   Depends on `tensorflow-transform>=0.22.0,<0.23.0`.
 *   Depends on `tfx-bsl>=0.22.0,<0.23.0`.
 *   Depends on `ml-metadata>=0.22.0,<0.23.0`.
+*   Depends on 'tensorflowjs>=2.0.1.post1,<3' for `[all]` dependency.
 *   Fixed a bug in `io_utils.copy_dir` which prevent it to work correctly for
     nested sub-directories.
 

@@ -52,8 +52,8 @@ RUN_FN = 'models.keras.model.run_fn'
 # NOTE: Uncomment below to use an estimator based model.
 # RUN_FN = 'models.estimator.model.run_fn'
 
-TRAIN_NUM_STEPS = 100
-EVAL_NUM_STEPS = 100
+TRAIN_NUM_STEPS = 1000
+EVAL_NUM_STEPS = 150
 
 # Change this value according to your use cases.
 EVAL_ACCURACY_THRESHOLD = 0.6
@@ -147,7 +147,7 @@ _query_sample_rate = 0.0001  # Generate a 0.01% random sample.
 # https://cloud.google.com/ml-engine/reference/rest/v1/projects.models
 # TODO(step 9): (Optional) Uncomment below to use AI Platform serving.
 # GCP_AI_PLATFORM_SERVING_ARGS = {
-#     'model_name': PIPELINE_NAME,
+#     'model_name': PIPELINE_NAME.replace('-','_'),  # '-' is not allowed.
 #     'project_id': GOOGLE_CLOUD_PROJECT,
 #     # The region to use when serving the model. See available regions here:
 #     # https://cloud.google.com/ml-engine/docs/regions
