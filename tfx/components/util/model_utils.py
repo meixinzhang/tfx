@@ -33,6 +33,19 @@ def is_model_blessed(model_blessing: types.Artifact) -> bool:
   return model_blessing.get_int_custom_property('blessed') == 1
 
 
+def is_model_pushed(pushed_model: types.Artifact) -> bool:
+  """Returns whether model is pushed by the Pusher.
+
+  Args:
+    pushed_model: pushed model artifact from pusher.
+
+  Returns:
+    True if the model is pushed.
+  """
+  return model_blessing.get_int_custom_property('pushed') == 1
+
+
+
 # TODO(jjong): Current pusher doesn't check whether the infra validated
 # environment is identical to the pushing environment, and it is a user's
 # responsibility to ensure the alignment. We need to provide a better mechanism.

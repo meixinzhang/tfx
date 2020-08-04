@@ -54,6 +54,11 @@ class ExecutorTest(tf.test.TestCase):
                                             'model_validator/blessed')
     self._model_blessing.set_int_custom_property('blessed', 1)
 
+    self._pushed_model = standard_artifacts.PushedModel()
+    self._pushed_model.uri = os.path.join(self._source_data_dir,
+                                            'pusher/pushed')
+    self._pushed_model.set_int_custom_property('pushed', 1)
+
     self._inference_result = standard_artifacts.InferenceResult()
     self._prediction_log_dir = os.path.join(self._output_data_dir,
                                             'prediction_logs')
@@ -85,6 +90,77 @@ class ExecutorTest(tf.test.TestCase):
         'examples': [self._examples],
         'model': [self._model],
         'model_blessing': [self._model_blessing],
+    }
+    output_dict = {
+        'inference_result': [self._inference_result],
+    }
+    # Create exe properties.
+    exec_properties = {
+        'data_spec':
+            json_format.MessageToJson(
+                bulk_inferrer_pb2.DataSpec(), preserving_proto_field_name=True),
+        'model_spec':
+            json_format.MessageToJson(
+                bulk_inferrer_pb2.ModelSpec(),
+                preserving_proto_field_name=True),
+        'component_id':
+            self.component_id,
+    }
+
+    # Run executor.
+    bulk_inferrer = executor.Executor(self._context)
+    bulk_inferrer.Do(input_dict, output_dict, exec_properties)
+
+    # Check outputs.
+    self.assertTrue(tf.io.gfile.exists(self._prediction_log_dir))
+    results = self._get_results(self._prediction_log_dir)
+    self.assertTrue(results)
+    self.assertEqual(
+        len(results[0].classify_log.response.result.classifications), 1)
+    self.assertEqual(
+        len(results[0].classify_log.response.result.classifications[0].classes),
+        2)
+
+  def testDoWithPushedModel(self):
+    input_dict = {
+        'examples': [self._examples],
+        'pushed_model': [self._pushed_model],
+    }
+    output_dict = {
+        'inference_result': [self._inference_result],
+    }
+    # Create exe properties.
+    exec_properties = {
+        'data_spec':
+            json_format.MessageToJson(
+                bulk_inferrer_pb2.DataSpec(), preserving_proto_field_name=True),
+        'model_spec':
+            json_format.MessageToJson(
+                bulk_inferrer_pb2.ModelSpec(),
+                preserving_proto_field_name=True),
+        'component_id':
+            self.component_id,
+    }
+
+    # Run executor.
+    bulk_inferrer = executor.Executor(self._context)
+    bulk_inferrer.Do(input_dict, output_dict, exec_properties)
+
+    # Check outputs.
+    self.assertTrue(tf.io.gfile.exists(self._prediction_log_dir))
+    results = self._get_results(self._prediction_log_dir)
+    self.assertTrue(results)
+    self.assertEqual(
+        len(results[0].classify_log.response.result.classifications), 1)
+    self.assertEqual(
+        len(results[0].classify_log.response.result.classifications[0].classes),
+        2)
+
+  def testDoWithModelandPushedModel(self):
+    input_dict = {
+        'examples': [self._examples],
+        'model': [self._model],
+        'pushed_model': [self._pushed_model],
     }
     output_dict = {
         'inference_result': [self._inference_result],

@@ -69,8 +69,8 @@ class Executor(base_executor.BaseExecutor):
     if 'inference_result' not in output_dict:
       raise ValueError('\'inference_result\' is missing in output dict.')
     output = artifact_utils.get_single_instance(output_dict['inference_result'])
-    if 'model' not in input_dict:
-      raise ValueError('Input models are not valid, model '
+    if 'model' not in input_dict and 'pushed_model' not in input_dict:
+      raise ValueError('Input models are not valid, model or pushed_model '
                        'need to be specified.')
     if 'model_blessing' in input_dict:
       model_blessing = artifact_utils.get_single_instance(
@@ -82,11 +82,19 @@ class Executor(base_executor.BaseExecutor):
     else:
       logging.info('Model blessing is not provided, exported model will be '
                    'used.')
+      model = artifact_utils.get_single_instance(input_dict['model'])
+      model_path = path_utils.serving_model_path(model.uri)
+      logging.info('Use exported model from %s.', model_path)
 
-    model = artifact_utils.get_single_instance(
-        input_dict['model'])
-    model_path = path_utils.serving_model_path(model.uri)
-    logging.info('Use exported model from %s.', model_path)
+    if 'pushed_model' in input_dict:
+      pushed_model = artifact_utils.get_single_instance(
+          input_dict['pushed_model'])
+      if not model_utils.is_model_pushed(pushed_model):
+        output.set_int_custom_property('inferred', 0)
+        logging.info('Model on %s was not pushed', pushed_model.uri)
+        return
+      if 'model' not in input_dict:
+        model_path = pushed_model.uri
 
     data_spec = bulk_inferrer_pb2.DataSpec()
     json_format.Parse(exec_properties['data_spec'], data_spec)

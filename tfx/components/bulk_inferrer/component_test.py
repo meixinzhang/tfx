@@ -31,10 +31,12 @@ class ComponentTest(tf.test.TestCase):
     examples = standard_artifacts.Examples()
     model = standard_artifacts.Model()
     model_blessing = standard_artifacts.ModelBlessing()
+    pushed_model = standard_artifacts.PushedModel()
     bulk_inferrer = component.BulkInferrer(
         examples=channel_utils.as_channel([examples]),
         model=channel_utils.as_channel([model]),
-        model_blessing=channel_utils.as_channel([model_blessing]))
+        model_blessing=channel_utils.as_channel([model_blessing])
+        pushed_model=channel_utils.as_channel([pushed_model]))
     self.assertEqual('InferenceResult',
                      bulk_inferrer.outputs['inference_result'].type_name)
 
